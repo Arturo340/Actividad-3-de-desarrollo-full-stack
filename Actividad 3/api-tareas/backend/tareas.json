@@ -1,0 +1,14 @@
+[
+  {
+    "id": "170001",
+    "titulo": "Preparar una pizza",
+    "descripcion": "Comprar queso peperoni salsa de tomate harina para poder cocinar la pizza",
+    "creadaEn": "2026-02-16T10:00:00.000Z"
+  },
+  {
+    "id": "170002",
+    "titulo": "Revisar pendiente de la semana",
+    "descripcion": "Comprar mandado, comprar ropa y salir con la familia",
+    "creadaEn": "2026-02-16T10:05:00.000Z"
+  }
+]

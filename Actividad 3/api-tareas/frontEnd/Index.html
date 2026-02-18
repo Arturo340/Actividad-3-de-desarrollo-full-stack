@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>API Tareas - Login</title>
+        <link rel="stylesheet" href="./style.css">
+    </head>
+
+
+    <body>
+        <div class="container">
+            <div class="header">
+              <div>
+              <h1 class="title">API Tareas</h1>
+              <p class="subtitle">Registro e inicio de sesion (JWT). Backend: <b>http://localhost:3000</b></p>
+              </div>
+              <div class="badge">FrontEnd (login) -> tareas.html</div>
+            </div>
+
+            <div class="grid">
+
+                <div class="card">
+                <h2>Registro</h2>  
+                <p class="muted">Crea tu usuario para poder iniciar sesion</p>
+
+                <label>Usuario</label>
+                <input id="regUser" placeholder="ej. jesus" />
+
+                <label>Contraseña</label>
+                <input id="regPass" type="password" placeholder="********" />
+                 
+                <div class="actions">
+                <button onclick="registrar()">Registrar</button>    
+                </div>
+
+                <p id="regMsg" class="msg"></p>
+                <pre id="regOut" class="result">{}</pre>
+                </div>
+
+            <div class="card">
+            <h2>Login</h2>
+            <p class="muted">Si es correcto te manda a <b>tareas.html</b>.</p>
+            <label>Usuario</label>
+            <input id="logUser" placeholder="ej. jesus" />
+
+            <label>Contraseña</label>
+            <input id="logPass" type="password" placeholder="********" />
+
+            <div class="actions">
+            <button class="good" onclick="login()">Iniciar sesion</button>
+            <button onclick="limpiarSesion()"> Limpiar Token</button>
+            </div>
+
+            <p id="logMsg" class="msg"></p>
+            <pre id="logOut" class="result">{}</pre>
+
+            <hr class="hr">
+            <p class="muted" style="margin:0;">
+                Nota: el token se guarda en <b>localStorage</b> automaticamente
+            </p>
+            </div>    
+            </div>
+        </div>
+
+        <script>
+            const API = "http://localhost:3000";
+
+            function setMsg(id, text, ok = true){
+                const el = document.getElementById(id);
+                el.className = ok ? "msg ok" : "msg bad";
+                el.textContent = text;
+            }
+ 
+            function printOut(id, obj){
+                document.getElementById(id).textContent = JSON.stringify(obj, null, 2);
+            }
+
+            function limpiarSesion(){
+                localStorage.removeItem("token");
+                setMsg("logMsg", "Token eliminado del navegador", true);
+                printOut("logOut", { message: "token eliminado" });
+            }
+
+            async function registrar(){
+                try{
+                    const username = document.getElementById("regUser").value.trim();
+                    const password = document.getElementById("regPass").value;
+
+                    if(!username || !password){
+                        setMsg("regMsg", "Falta usuario o contraseña", false);
+                        return;
+                    }
+
+                    const res = await fetch(API + "/register", {
+                    method: "POST",
+                    headers: { "Content-Type":"application/json"},
+                    body: JSON.stringify({ username, password})
+                    
+                });
+
+                const data = await res.json().catch(()=>(({})));
+                printOut("regOut", data);
+                
+                if(res.ok){
+                    setMsg("regMsg", "Registro correcto. Ahora inicia sesion", true);
+                } else {
+                    setMsg("regMsg", "Error: " + (data.error || "No se pudo registrar"), false);
+
+                } 
+            } catch(err){
+                setMsg("regMsg", "Error de frontend: " + err.message, false);
+            }   
+
+        }
+
+        
+           
+        async function login(){
+            try{
+                const username = document.getElementById("logUser").value.trim();
+                const password = document.getElementById("logPass").value;
+
+                if(!username || !password){
+                    setMsg("logMsg", "Falta usuario o contraseña", false);
+                    return;
+                }
+
+
+                const res = await fetch(API + "/login", {
+                    method: "POST",
+                    headers: { "Content-Type":"application/json"},
+                    body: JSON.stringify({ username, password })
+
+                });
+
+                const data = await res.json().catch(()=>({}));
+                printOut("logOut", data);
+
+                if(res.ok && data.token){
+                    localStorage.setItem("token", data.token);
+                    setMsg("logMsg","Login correcto Redirigiendo a tareas...", true);
+
+                    window.location.href = "./tareas.html";
+                } else{
+                    setMsg("logMsg","Error: " + (data.error || "No se pudo iniciar sesion"), false);
+
+                }    
+            } catch(err){
+                setMsg("logMsg", "Error de frontend: " + err.message, false);
+
+                
+            }
+        }
+        </script>
+    </body>
+</html>
+        
+            
+
+           
