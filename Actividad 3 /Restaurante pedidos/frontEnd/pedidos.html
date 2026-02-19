@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Restaurante - Pedidos</title>
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="topbar">
+                <div>
+                    <h1 class="title" style="margin:0;">Restaurante | Pedidos</h1>
+                    <p class="subtitle">Rutas protegidas con JWT. Backend: <b>http://localhost:3000</b></p>
+                </div>
+                <div class="kpi">
+                    <div class="pill" id="tokenState">Token: (revisando...)</div>
+                    <button class="smallbtn" onclick="cerrarSesion()">Cerrar sesion</button>
+                    <button class="smallbtn" onclick="volver()">Volver a login</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>1) Ver menu (GET /menu)</h2>
+                <div class="actions">
+                    <button class="primary" onclick="verMenu()">Ver menu</button>
+                </div>
+                <pre id="menuOut" class="result">{}</pre>
+            </div>
+
+            <div class="card">
+                <h2>2) Ver pedidos (GET /tareas)</h2>
+                <div class="actions">
+                    <button class="primary" onclick="verPedido()">Ver pedidos</button>
+                </div>
+                <pre id="readOut" class="result">{}</pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>3) Crear pedido (POST /tareas)</h2>
+
+                <label>Cliente</label>
+                <input id="cliente" placeholder="Ej. Mesa 4" />
+
+                <label>Categoria</label>
+                <input id="categoria" placeholder="Ej. Cafeteria" />
+
+                <label>Items (JSON)</label>
+                <textarea id="items" rows="5" placeholder='Ej:
+                [
+                  { sku: "CAF-001", nombre: "Cafe americano", "cantidad":1},
+                  { sku: "POS-002", nombre: "Brownie", "cantidad":2}
+                ]
+                '></textarea>
+
+
+                <div class="actions">
+                <button onclick="crearPedido()">Crear pedido</button>    
+                </div>
+                <pre id="createOut" class="result">{}</pre>           
+            </div>
+
+            <div class="card">
+                <h2>4) Actualizar pedido (PUT /tareas/:id)</h2>
+
+                <p class="muted">Elimina una tarea por ID</p>
+
+                <label>ID del pedido</label>
+                <input id="updId" placeholder="Pega aqui el id..." />
+
+                <label>Nuevo estado (opcional)</label>
+                <input id="updEstado" placeholder="Ej. preparado / listo / entregado" />
+
+                <label>Nuevo cliente (opcional)</label>
+                <input id="updCliente" placeholder="Ej. Mesa 10" />
+
+                <div class="actions">
+                <button onclick="actualizarPedido()">Actualizar</button>
+                </div>
+                <pre id="updateOut" class="result">{}</pre>
+            </div>
+        
+            <div class="card">
+                <h2>5) Eliminar pedido (DELETE /tareas/:id)</h2>
+
+                <label>ID del pedido</label>
+                <input id="delId" placeholder="Pega aqui el id..." />
+
+                <div class="actions">
+                    <button class="danger" onclick="eliminarPedido()">Eliminar</button>
+                </div>
+                <pre id="deleteOut" class="result">{}</pre>
+            </div>
+        </div>
+
+        <script>
+            const API = "http://localhost:3000";
+
+            function getToken(){
+                return (localStorage.getItem("token") || "") .trim();
+            }
+
+            function printOut(id, obj){
+                document.getElementById(id).textContent = JSON.stringify(obj, null, 2);
+            }
+
+            function requireToken(){
+                const token = getToken();
+                if(!token){
+                    alert("No hay token. Inicia sesion primero");
+                    window.location.href = "./index.html";
+                    return null;
+                }
+                return token;
+            }
+
+            function setTokenState(){
+                const token = getToken();
+                const el = document.getElementById("tokenState");
+                if(token){
+                    el.textContent = "Token: OK (guardado)";
+                } else{
+                    el.textContent = "Token: NO (sin login)";
+                }
+            }
+
+            function cerrarSesion(){
+                localStorage.removeItem("token");
+                alert("Sesion cerrada");
+                window.location.href = "./index.html";
+            }
+
+            function volver(){
+                window.location.href = "./index.html";
+            }
+
+            async function verMenu(){
+                const res = await fetch(API + "/menu");
+                const data = await res.json().catch(()=>({}));
+                printOut("menuOut", data);
+            }
+
+            async function verPedido(){
+                const token = requireToken(); if(!token) return;
+
+                const res = await fetch(API + "/tareas", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                const data = await res.json().catch(()=>({}));
+                printOut("readOut", data);
+            }
+
+            async function crearPedido(){
+                const token = requireToken(); if(!token) return;
+
+                const cliente = document.getElementById("cliente").value.trim() || "Mostrador";
+                const categoria = document.getElementById("categoria").value.trim();
+                const rawItems = document.getElementById("items").value.trim();
+
+                if(!categoria || !rawItems){
+                    printOut("createOut", { error: "Falta categoria o items"});
+                    return;
+                }
+
+                let items;
+                try{
+                    items = JSON.parse(rawItems);
+                }catch(e){
+                    printOut("createOut", { error: "Items no es valido"});
+                    return;
+                }
+
+                const res = await fetch(API + "/tareas", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":"application/json",
+                        "Authorization":"Bearer " + token
+                    },
+                    body: JSON.stringify({ cliente, categoria, items })
+                });
+
+                const data = await res.json().catch(()=>({}));
+                printOut("createOut", data);
+            }
+
+            async function actualizarPedido(){
+                const token = requireToken(); if(!token) return;
+
+                const id = document.getElementById("updId").value.trim();
+                const estado = document.getElementById("updEstado").value.trim();
+                const cliente = document.getElementById("updCliente").value.trim();
+
+                if(!id){
+                    printOut("updateOut", { error: "Falta el id"});
+                    return;
+                }
+
+                const body = {};
+                if(estado) body.estado = estado;
+                if(cliente) body.cliente = cliente;
+
+                const res = await fetch(API + "/tareas/" + encodeURIComponent(id), {
+                    method:"PUT",
+                    headers:{
+                        "Content-Type":"application/json",
+                        "Authorization":"Bearer " + token 
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await res.json().catch(()=>({}));
+                printOut("updateOut", data);
+            }
+
+            async function eliminarPedido(){
+                const token = requireToken(); if(!token) return;
+
+                const id = document.getElementById("delId").value.trim();
+                if(!id){
+                    printOut("deleteOut", { error: "Falta el id" });
+                    return;
+                }
+
+                const res = await fetch(API + "/tareas/" + encodeURIComponent(id), {
+                    method:"DELETE",
+                    headers:{ "Authorization":"Bearer " + token }
+                });
+
+                const data = await res.json().catch(()=>({}));
+                printOut("deleteOut", data);
+            }
+
+            setTokenState();
+        </script>
+    </body>
+</html>

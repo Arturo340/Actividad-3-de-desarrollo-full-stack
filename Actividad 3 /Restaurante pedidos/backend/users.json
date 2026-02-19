@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1771302439182",
+    "username": "JESUS",
+    "passwordHash": "$2b$10$Y44qhtEtyTYK4NuR4nXF.ucM/yuvZizUDAp1KdGzy/iDBP9Ryi8PC"
+  },
+  {
+    "id": "1771359270819",
+    "username": "Nacho",
+    "passwordHash": "$2b$10$U.HX9QwUzItxdlwgxubTROuBHoL7FjTMMRAAyP/mp5MBgikJy1G0K"
+  },
+  {
+    "id": "1771371312385",
+    "username": "PANCHOBLOX",
+    "passwordHash": "$2b$10$SK7oDYF77LGmFfuYHBaaLO2jAWgcqtWS2omtnazRuj3OohDrbm0NO"
+  },
+  {
+    "id": "1771459950136",
+    "username": "SPIDERMAN",
+    "passwordHash": "$2b$10$wuI8c1RlSwKr8fp1DoFp9OkIqv1QjZfFUvL1mDqBVtlwnJvNCjO9q"
+  },
+  {
+    "id": "1771462726729",
+    "username": "IRONMAN",
+    "passwordHash": "$2b$10$zLADq0khjgEl5qD5QhkKz.Xo3v7nziXKXNZ4RamK44nDxX.qk/8VS"
+  },
+  {
+    "id": "1771463857891",
+    "username": "CAPITANAMARVEL",
+    "passwordHash": "$2b$10$khRq6K0SUZ.ZiG/7FK8fKeb7/vX/p1YfsFDjCYzXgGJgoAC77RN3K"
+  }
+]
